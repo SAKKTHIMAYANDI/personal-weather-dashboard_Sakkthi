@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Weather Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 2rem;
+        font-size: 1.8rem;
+      }
+
+      .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-secondary {
+        background: #e2e8f0;
+        color: #4a5568;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .form-container {
+        display: none;
+      }
+
+      .form-container.active {
+        display: block;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 500;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .error {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+
+      .success {
+        color: #38a169;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+
+      .weather-info {
+        display: none;
+        text-align: center;
+      }
+
+      .weather-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 1rem 0;
+      }
+
+      .location {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+      }
+
+      .temperature {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
+
+      .condition {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+
+      .weather-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .weather-detail {
+        text-align: center;
+      }
+
+      .detail-label {
+        font-size: 0.875rem;
+        opacity: 0.8;
+      }
+
+      .detail-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+      }
+
+      .update-location {
+        display: none;
+        margin-top: 1rem;
+      }
+
+      .location-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .btn-small {
+        padding: 8px 12px;
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Weather Dashboard</h1>
+
+      <div class="auth-buttons" id="authButtons">
+        <button class="btn btn-primary" onclick="showLogin()">Login</button>
+        <button class="btn btn-secondary" onclick="showRegister()">
+          Register
+        </button>
+      </div>
+
+      <!-- Below Login Form Code -->
+      <div class="form-container" id="loginForm">
+        <h2>Login</h2>
+        <form onsubmit="login(event)">
+          <div class="form-group">
+            <label for="loginEmail">Email:</label>
+            <input type="email" id="loginEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+          <div id="loginError" class="error"></div>
+        </form>
+      </div>
+
+      <!-- Below Register Form Code -->
+      <div class="form-container" id="registerForm">
+        <h2>Register</h2>
+        <form onsubmit="register(event)">
+          <div class="form-group">
+            <label for="registerEmail">Email:</label>
+            <input type="email" id="registerEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Password:</label>
+            <input
+              type="password"
+              id="registerPassword"
+              required
+              minlength="6"
+            />
+          </div>
+          <div class="form-group">
+            <label for="registerCity">City:</label>
+            <input type="text" id="registerCity" required />
+          </div>
+          <div class="form-group">
+            <label for="registerCountry">Country:</label>
+            <input type="text" id="registerCountry" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Register</button>
+          <div id="registerError" class="error"></div>
+          <div id="registerSuccess" class="success"></div>
+        </form>
+      </div>
+
+      <!-- This is Weather Dashboard  Code-->
+      <div class="weather-info" id="weatherInfo">
+        <div class="weather-card" id="weatherCard">
+        </div>
+
+        <div class="location-buttons">
+          <button
+            class="btn btn-secondary btn-small"
+            onclick="showUpdateLocation()"
+          >
+            Update Location
+          </button>
+          <button
+            class="btn btn-secondary btn-small"
+            onclick="getCurrentLocation()"
+          >
+            Auto-Detect
+          </button>
+          <button class="btn btn-secondary btn-small" onclick="logout()">
+            Logout
+          </button>
+        </div>
+
+        <!-- This is  Update Location Code-->
+        <div class="update-location" id="updateLocationForm">
+          <h3>Update Location</h3>
+          <form onsubmit="updateLocation(event)">
+            <div class="form-group">
+              <label for="updateCity">City:</label>
+              <input type="text" id="updateCity" />
+            </div>
+            <div class="form-group">
+              <label for="updateCountry">Country:</label>
+              <input type="text" id="updateCountry" />
+            </div>
+            <div style="text-align: center; margin: 1rem 0">OR</div>
+            <div class="form-group">
+              <label for="updateLat">Latitude:</label>
+              <input type="number" id="updateLat" step="any" />
+            </div>
+            <div class="form-group">
+              <label for="updateLon">Longitude:</label>
+              <input type="number" id="updateLon" step="any" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+              Update Location
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="hideUpdateLocation()"
+            >
+              Cancel
+            </button>
+            <div id="updateError" class="error"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentToken = localStorage.getItem("token");
+
+      // Check if user is already logged in
+      if (currentToken) {
+        checkAuthAndLoadWeather();
+      }
+
+      function showLogin() {
+        document.getElementById("authButtons").style.display = "none";
+        document.getElementById("loginForm").classList.add("active");
+        document.getElementById("registerForm").classList.remove("active");
+      }
+
+      function showRegister() {
+        document.getElementById("authButtons").style.display = "none";
+        document.getElementById("registerForm").classList.add("active");
+        document.getElementById("loginForm").classList.remove("active");
+      }
+
+      function showUpdateLocation() {
+        document.getElementById("updateLocationForm").style.display = "block";
+      }
+
+      function hideUpdateLocation() {
+        document.getElementById("updateLocationForm").style.display = "none";
+      }
+
+      async function register(event) {
+        event.preventDefault();
+
+        const email = document.getElementById("registerEmail").value;
+        const password = document.getElementById("registerPassword").value;
+        const city = document.getElementById("registerCity").value;
+        const country = document.getElementById("registerCountry").value;
+
+        try {
+          const response = await fetch("/api/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+              city: city,
+              country: country,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            document.getElementById("registerSuccess").textContent =
+              "Registration successful! Please login.";
+            document.getElementById("registerError").textContent = "";
+            setTimeout(() => {
+              showLogin();
+              document.getElementById("loginEmail").value = email;
+            }, 1500);
+          } else {
+            document.getElementById("registerError").textContent =
+              data.error || "Registration failed";
+            document.getElementById("registerSuccess").textContent = "";
+          }
+        } catch (error) {
+          document.getElementById("registerError").textContent =
+            "Network error. Please try again.";
+          document.getElementById("registerSuccess").textContent = "";
+        }
+      }
+
+      async function login(event) {
+        event.preventDefault();
+
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
+        try {
+          const response = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            currentToken = data.token;
+            localStorage.setItem("token", currentToken);
+            loadWeatherDashboard();
+          } else {
+            document.getElementById("loginError").textContent =
+              data.error || "Login failed";
+          }
+        } catch (error) {
+          document.getElementById("loginError").textContent =
+            "Network error. Please try again.";
+        }
+      }
+
+      async function checkAuthAndLoadWeather() {
+        try {
+          const response = await fetch("/api/weather", {
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+            },
+          });
+
+          if (response.ok) {
+            loadWeatherDashboard();
+          } else {
+            localStorage.removeItem("token");
+            currentToken = null;
+          }
+        } catch (error) {
+          localStorage.removeItem("token");
+          currentToken = null;
+        }
+      }
+
+      async function loadWeatherDashboard() {
+        try {
+          const response = await fetch("/api/weather", {
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+            },
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            displayWeather(data);
+            document.getElementById("authButtons").style.display = "none";
+            document.getElementById("loginForm").classList.remove("active");
+            document.getElementById("registerForm").classList.remove("active");
+            document.getElementById("weatherInfo").style.display = "block";
+          } else {
+            document.getElementById("loginError").textContent =
+              data.error || "Failed to load weather";
+          }
+        } catch (error) {
+          document.getElementById("loginError").textContent =
+            "Network error. Please try again.";
+        }
+      }
+
+      function displayWeather(data) {
+        const weatherCard = document.getElementById("weatherCard");
+        weatherCard.innerHTML = `
+                <div class="location">${data.location}</div>
+                <div class="temperature">${data.temperature}°C</div>
+                <div class="condition">${data.condition}</div>
+                <div class="weather-details">
+                    <div class="weather-detail">
+                        <div class="detail-label">Feels Like</div>
+                        <div class="detail-value">${data.feels_like}°C</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="detail-label">Humidity</div>
+                        <div class="detail-value">${data.humidity}%</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="detail-label">Wind Speed</div>
+                        <div class="detail-value">${data.wind_speed} m/s</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="detail-label">Pressure</div>
+                        <div class="detail-value">${data.pressure} hPa</div>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.9;">
+                    ${data.description}
+                </div>
+            `;
+      }
+
+      async function updateLocation(event) {
+        event.preventDefault();
+
+        const city = document.getElementById("updateCity").value;
+        const country = document.getElementById("updateCountry").value;
+        const lat = document.getElementById("updateLat").value;
+        const lon = document.getElementById("updateLon").value;
+
+        if ((!city || !country) && (!lat || !lon)) {
+          document.getElementById("updateError").textContent =
+            "Please provide either city & country or latitude & longitude";
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/update-location", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${currentToken}`,
+            },
+            body: JSON.stringify({
+              city: city || null,
+              country: country || null,
+              latitude: lat ? parseFloat(lat) : null,
+              longitude: lon ? parseFloat(lon) : null,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            hideUpdateLocation();
+            loadWeatherDashboard();
+          } else {
+            document.getElementById("updateError").textContent =
+              data.error || "Failed to update location";
+          }
+        } catch (error) {
+          document.getElementById("updateError").textContent =
+            "Network error. Please try again.";
+        }
+      }
+
+      function getCurrentLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const lat = position.coords.latitude;
+              const lon = position.coords.longitude;
+
+              try {
+                const response = await fetch("/api/update-location", {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${currentToken}`,
+                  },
+                  body: JSON.stringify({
+                    city: null,
+                    country: null,
+                    latitude: lat,
+                    longitude: lon,
+                  }),
+                });
+
+                if (response.ok) {
+                  loadWeatherDashboard();
+                } else {
+                  alert("Failed to update location");
+                }
+              } catch (error) {
+                alert("Network error. Please try again.");
+              }
+            },
+            (error) => {
+              alert("Unable to get your location. Please update manually.");
+            }
+          );
+        } else {
+          alert("Geolocation is not supported by this browser.");
+        }
+      }
+
+      async function logout() {
+        try {
+          await fetch("/api/logout", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+            },
+          });
+        } catch (error) {
+          // Continue with logout even if request fails
+        }
+
+        localStorage.removeItem("token");
+        currentToken = null;
+
+        // Reset UI
+        document.getElementById("authButtons").style.display = "flex";
+        document.getElementById("loginForm").classList.remove("active");
+        document.getElementById("registerForm").classList.remove("active");
+        document.getElementById("weatherInfo").style.display = "none";
+
+        // Clear forms
+        document.getElementById("loginEmail").value = "";
+        document.getElementById("loginPassword").value = "";
+        document.getElementById("loginError").textContent = "";
+      }
+    </script>
+  </body>
+</html>
