@@ -240,8 +240,7 @@
 
       <!-- This is Weather Dashboard  Code-->
       <div class="weather-info" id="weatherInfo">
-        <div class="weather-card" id="weatherCard">
-        </div>
+        <div class="weather-card" id="weatherCard"></div>
 
         <div class="location-buttons">
           <button
@@ -301,7 +300,6 @@
     <script>
       let currentToken = localStorage.getItem("token");
 
-      // Check if user is already logged in
       if (currentToken) {
         checkAuthAndLoadWeather();
       }
@@ -572,20 +570,16 @@
               Authorization: `Bearer ${currentToken}`,
             },
           });
-        } catch (error) {
-          // Continue with logout even if request fails
-        }
+        } catch (error) {}
 
         localStorage.removeItem("token");
         currentToken = null;
 
-        // Reset UI
         document.getElementById("authButtons").style.display = "flex";
         document.getElementById("loginForm").classList.remove("active");
         document.getElementById("registerForm").classList.remove("active");
         document.getElementById("weatherInfo").style.display = "none";
 
-        // Clear forms
         document.getElementById("loginEmail").value = "";
         document.getElementById("loginPassword").value = "";
         document.getElementById("loginError").textContent = "";
